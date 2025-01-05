@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduPlatform</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto 20px;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 10px;
+    }
+
+    input, select, textarea {
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .profile-display, .resource-item {
+      margin: 15px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .profile-display img, .resource-item img {
+      width: 100%;
+      max-width: 150px;
+      height: auto;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Profile Creation Section -->
+  <div class="container">
+    <h1>Create Profile</h1>
+    <form id="profile-form">
+      <label for="name">Name:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="bio">Bio:</label>
+      <textarea id="bio" name="bio" required></textarea>
+
+      <label for="profile-pic">Upload Profile Picture:</label>
+      <input type="file" id="profile-pic" name="profile-pic" accept="image/*" required>
+
+      <button type="submit">Save Profile</button>
+    </form>
+
+    <h2>Profile</h2>
+    <div id="profile-display" class="profile-display"></div>
+  </div>
+
+  <!-- Resource Upload Section -->
+  <div class="container" id="resource-section" style="display: none;">
+    <h1>Upload Educational Resources</h1>
+    <form id="resource-form">
+      <label for="title">Resource Title:</label>
+      <input type="text" id="title" name="title" required>
+
+      <label for="description">Description:</label>
+      <textarea id="description" name="description" required></textarea>
+
+      <label for="type">Type:</label>
+      <select id="type" name="type" required>
+        <option value="">Select Type</option>
+        <option value="Course">Course</option>
+        <option value="Workshop">Workshop</option>
+        <option value="Article">Article</option>
+      </select>
+
+      <label for="category">Category:</label>
+      <input type="text" id="category" name="category" required>
+
+      <label for="difficulty">Difficulty Level:</label>
+      <select id="difficulty" name="difficulty" required>
+        <option value="Beginner">Beginner</option>
+        <option value="Intermediate">Intermediate</option>
+        <option value="Advanced">Advanced</option>
+      </select>
+
+      <label for="language">Language:</label>
+      <select id="language" name="language" required>
+        <option value="English">English</option>
+        <option value="Spanish">Spanish</option>
+        <option value="French">French</option>
+      </select>
+
+      <label for="image">Upload Image:</label>
+      <input type="file" id="image" name="image" accept="image/*" required>
+
+      <button type="submit">Upload Resource</button>
+    </form>
+
+    <h2>Uploaded Resources</h2>
+    <div id="resources-list"></div>
+  </div>
+
+  <script>
+    // Profile Creation Logic
+    document.getElementById('profile-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const bio = document.getElementById('bio').value;
+      const profilePicFile = document.getElementById('profile-pic').files[0];
+
+      if (!profilePicFile) {
+        alert('Please upload a profile picture.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const profilePicUrl = e.target.result;
+
+        const profileDisplay = document.getElementById('profile-display');
+        profileDisplay.innerHTML = `
+          <img src="${profilePicUrl}" alt="Profile Picture">
+          <h3>${name}</h3>
+          <p><strong>Email:</strong> ${email}</p>
+          <p>${bio}</p>
+        `;
+
+        document.getElementById('profile-form').reset();
+
+        // Show the resource upload section
+        document.getElementById('resource-section').style.display = 'block';
+      };
+
+      reader.readAsDataURL(profilePicFile);
+    });
+
+    // Resource Upload Logic
+    const resources = [];
+    document.getElementById('resource-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const type = document.getElementById('type').value;
+      const category = document.getElementById('category').value;
+      const difficulty = document.getElementById('difficulty').value;
+      const language = document.getElementById('language').value;
+      const imageFile = document.getElementById('image').files[0];
+
+      if (!imageFile) {
+        alert('Please upload an image.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imageUrl = e.target.result;
+
+        const resource = {
+          title,
+          description,
+          type,
+          category,
+          difficulty,
+          language,
+          imageUrl
+        };
+
+        resources.push(resource);
+        displayResources();
+        document.getElementById('resource-form').reset();
+      };
+
+      reader.readAsDataURL(imageFile);
+    });
+
+    function displayResources() {
+      const resourcesList = document.getElementById('resources-list');
+      resourcesList.innerHTML = '';
+
+      resources.forEach(resource => {
+        const resourceItem = document.createElement('div');
+        resourceItem.classList.add('resource-item');
+
+        resourceItem.innerHTML = `
+          <img src="${resource.imageUrl}" alt="${resource.title}">
+          <h3>${resource.title}</h3>
+          <p><strong>Type:</strong> ${resource.type}</p>
+          <p><strong>Category:</strong> ${resource.category}</p>
+          <p><strong>Difficulty:</strong> ${resource.difficulty}</p>
+          <p><strong>Language:</strong> ${resource.language}</p>
+          <p>${resource.description}</p>
+        `;
+
+        resourcesList.appendChild(resourceItem);
+      });
+    }
+  </script>
+
+</body>
+</html>
